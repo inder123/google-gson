@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.GsonPreconditions;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -42,7 +42,7 @@ public final class FieldAttributes {
    * @param f the field to pull attributes from
    */
   public FieldAttributes(Field f) {
-    $Gson$Preconditions.checkNotNull(f);
+    GsonPreconditions.checkNotNull(f);
     this.field = f;
   }
 

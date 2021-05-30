@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 
 import com.google.gson.internal.Primitives;
 import java.lang.reflect.InvocationTargetException;
@@ -154,7 +154,7 @@ public class ParameterizedTypeFixtures {
     @Override public MyParameterizedType<T> deserialize(JsonElement json, Type typeOfT,
         JsonDeserializationContext context) throws JsonParseException {
       Type genericClass = ((ParameterizedType) typeOfT).getActualTypeArguments()[0];
-      Class<?> rawType = $Gson$Types.getRawType(genericClass);
+      Class<?> rawType = GsonTypes.getRawType(genericClass);
       String className = rawType.getSimpleName();
       JsonElement jsonElement = json.getAsJsonObject().get(className);
 

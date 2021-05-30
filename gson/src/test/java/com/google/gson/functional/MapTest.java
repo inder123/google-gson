@@ -40,7 +40,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.common.TestTypes;
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -295,7 +295,7 @@ public class MapTest extends TestCase {
   }
 
   public void testCustomSerializerForSpecificMapType() {
-    Type type = $Gson$Types.newParameterizedTypeWithOwner(
+    Type type = GsonTypes.newParameterizedTypeWithOwner(
         null, Map.class, String.class, Long.class);
     Gson gson = new GsonBuilder()
         .registerTypeAdapter(type, new JsonSerializer<Map<String, Long>>() {

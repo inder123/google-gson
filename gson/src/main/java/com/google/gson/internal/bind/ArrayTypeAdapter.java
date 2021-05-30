@@ -26,7 +26,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -44,10 +44,10 @@ public final class ArrayTypeAdapter<E> extends TypeAdapter<Object> {
         return null;
       }
 
-      Type componentType = $Gson$Types.getArrayComponentType(type);
+      Type componentType = GsonTypes.getArrayComponentType(type);
       TypeAdapter<?> componentTypeAdapter = gson.getAdapter(TypeToken.get(componentType));
       return new ArrayTypeAdapter(
-              gson, componentTypeAdapter, $Gson$Types.getRawType(componentType));
+              gson, componentTypeAdapter, GsonTypes.getRawType(componentType));
     }
   };
 

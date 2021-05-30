@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.reflect.TypeToken;
 
 import junit.framework.TestCase;
@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Unit tests for the {@code GenericArrayType}s created by the {@link $Gson$Types} class.
+ * Unit tests for the {@code GenericArrayType}s created by the {@link GsonTypes} class.
  *
  * @author Inderjeet Singh
  * @author Joel Leitch
@@ -37,7 +37,7 @@ public class GenericArrayTypeTest extends TestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    ourType = $Gson$Types.arrayOf($Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class));
+    ourType = GsonTypes.arrayOf(GsonTypes.newParameterizedTypeWithOwner(null, List.class, String.class));
   }
 
   public void testOurTypeFunctionality() throws Exception {

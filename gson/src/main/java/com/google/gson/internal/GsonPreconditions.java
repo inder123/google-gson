@@ -26,11 +26,13 @@ package com.google.gson.internal;
  * }
  * </pre>
  *
+ * <p><b>Warning:</b> This class is internal and can change or be removed at any point.
+ *
  * @author Inderjeet Singh
  * @author Joel Leitch
  */
-public final class $Gson$Preconditions {
-  private $Gson$Preconditions() {
+public final class GsonPreconditions {
+  private GsonPreconditions() {
     throw new UnsupportedOperationException();
   }
 

@@ -19,7 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.$Gson$Types;
+import com.google.gson.internal.GsonTypes;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.reflect.TypeToken;
@@ -49,7 +49,7 @@ public final class CollectionTypeAdapterFactory implements TypeAdapterFactory {
       return null;
     }
 
-    Type elementType = $Gson$Types.getCollectionElementType(type, rawType);
+    Type elementType = GsonTypes.getCollectionElementType(type, rawType);
     TypeAdapter<?> elementTypeAdapter = gson.getAdapter(TypeToken.get(elementType));
     ObjectConstructor<T> constructor = constructorConstructor.get(typeToken);
 

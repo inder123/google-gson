@@ -16,7 +16,7 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
+import com.google.gson.internal.GsonPreconditions;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -40,7 +40,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param bool the value to create the primitive with.
    */
   public JsonPrimitive(Boolean bool) {
-    value = $Gson$Preconditions.checkNotNull(bool);
+    value = GsonPreconditions.checkNotNull(bool);
   }
 
   /**
@@ -49,7 +49,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param number the value to create the primitive with.
    */
   public JsonPrimitive(Number number) {
-    value = $Gson$Preconditions.checkNotNull(number);
+    value = GsonPreconditions.checkNotNull(number);
   }
 
   /**
@@ -58,7 +58,7 @@ public final class JsonPrimitive extends JsonElement {
    * @param string the value to create the primitive with.
    */
   public JsonPrimitive(String string) {
-    value = $Gson$Preconditions.checkNotNull(string);
+    value = GsonPreconditions.checkNotNull(string);
   }
 
   /**
@@ -70,7 +70,7 @@ public final class JsonPrimitive extends JsonElement {
   public JsonPrimitive(Character c) {
     // convert characters to strings since in JSON, characters are represented as a single
     // character string
-    value = $Gson$Preconditions.checkNotNull(c).toString();
+    value = GsonPreconditions.checkNotNull(c).toString();
   }
 
   /**
