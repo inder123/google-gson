@@ -1,6 +1,7 @@
 ---
 name: Feature request
-about: Request a feature. ⚠️ Gson is in maintenance mode; large feature requests might be rejected.
+about: Request a feature. ⚠️ Gson is in maintenance mode; large feature requests might
+  be rejected.
 title: ''
 labels: enhancement
 assignees: ''
@@ -17,4 +18,3 @@ assignees: ''
 
 # Alternatives / workarounds
 <!-- Describe alternatives or workarounds in case you are aware of any -->
-

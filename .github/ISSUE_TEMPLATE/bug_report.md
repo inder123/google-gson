@@ -1,6 +1,7 @@
 ---
 name: Bug report
-about: Report a Gson bug. Please have a look at the troubleshooting guide (Troubleshooting.md) first.
+about: Report a Gson bug. Please have a look at the troubleshooting guide (Troubleshooting.md)
+  first.
 title: ''
 labels: bug
 assignees: ''
