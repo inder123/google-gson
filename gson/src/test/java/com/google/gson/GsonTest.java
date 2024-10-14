@@ -136,6 +136,61 @@ public final class GsonTest {
   }
 
   @Test
+  public void testFromJson_WrongResultType() {
+    class IntegerAdapter extends TypeAdapter<Integer> {
+      @Override
+      public Integer read(JsonReader in) throws IOException {
+        in.skipValue();
+        return 3;
+      }
+
+      @Override
+      public void write(JsonWriter out, Integer value) {
+        throw new AssertionError("not needed for test");
+      }
+
+      @Override
+      public String toString() {
+        return "custom-adapter";
+      }
+    }
+
+    Gson gson = new GsonBuilder().registerTypeAdapter(Boolean.class, new IntegerAdapter()).create();
+    // Use `Class<?>` here to avoid that the JVM itself creates the ClassCastException (though the
+    // check below for the custom message would detect that as well)
+    Class<?> deserializedClass = Boolean.class;
+    var exception =
+        assertThrows(ClassCastException.class, () -> gson.fromJson("true", deserializedClass));
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            "Type adapter 'custom-adapter' returned wrong type; requested class java.lang.Boolean"
+                + " but got instance of class java.lang.Integer\n"
+                + "Verify that the adapter was registered for the correct type.");
+
+    // Returning boxed primitive should be allowed (e.g. returning `Integer` for `int`)
+    Gson gson2 = new GsonBuilder().registerTypeAdapter(int.class, new IntegerAdapter()).create();
+    assertThat(gson2.fromJson("0", int.class)).isEqualTo(3);
+
+    class NullAdapter extends TypeAdapter<Object> {
+      @Override
+      public Object read(JsonReader in) throws IOException {
+        in.skipValue();
+        return null;
+      }
+
+      @Override
+      public void write(JsonWriter out, Object value) {
+        throw new AssertionError("not needed for test");
+      }
+    }
+
+    // Returning `null` should be allowed
+    Gson gson3 = new GsonBuilder().registerTypeAdapter(Boolean.class, new NullAdapter()).create();
+    assertThat(gson3.fromJson("true", Boolean.class)).isNull();
+  }
+
+  @Test
   public void testGetAdapter_Null() {
     Gson gson = new Gson();
     NullPointerException e =
