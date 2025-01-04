@@ -72,6 +72,7 @@ import java.util.regex.Pattern;
  *       output
  *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
  *   <li>{@link #setSerializeNulls(boolean)}, by default {@code null} is serialized
+ *   <li>{@link #setTopLevelSeparator(String)}, by default {@code null} (= disabled)
  * </ul>
  *
  * The default configuration of {@code JsonWriter} instances used internally by the {@link Gson}
@@ -218,6 +219,11 @@ public class JsonWriter implements Closeable, Flushable {
 
   private Strictness strictness = Strictness.LEGACY_STRICT;
 
+  /**
+   * Separator between top-level values; {@code null} if multiple top-level values are not allowed
+   */
+  private String topLevelSeparator = null;
+
   private boolean htmlSafe;
 
   private String deferredName;
@@ -334,9 +340,13 @@ public class JsonWriter implements Closeable, Flushable {
    *   <dd>The behavior of these is currently identical. In these strictness modes, the writer only
    *       writes JSON in accordance with RFC 8259.
    *   <dt>{@link Strictness#LENIENT}
-   *   <dd>This mode relaxes the behavior of the writer to allow the writing of {@link
-   *       Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}. It also allows writing
-   *       multiple top level values.
+   *   <dd>In lenient mode, the following departures from RFC 8259 are permitted:
+   *       <ul>
+   *         <li>Writing of {@link Double#isNaN() NaNs} and {@link Double#isInfinite() infinities}.
+   *         <li>Writing multiple top level values. The values are concatenated without any
+   *             separating whitespace. Can be enabled independently and can be further customized
+   *             using {@link #setTopLevelSeparator(String)}.
+   *       </ul>
    * </dl>
    *
    * @param strictness the new strictness of this writer. May not be {@code null}.
@@ -345,6 +355,7 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final void setStrictness(Strictness strictness) {
     this.strictness = Objects.requireNonNull(strictness);
+    setTopLevelSeparator(strictness == Strictness.LENIENT ? "" : null);
   }
 
   /**
@@ -355,6 +366,33 @@ public class JsonWriter implements Closeable, Flushable {
    */
   public final Strictness getStrictness() {
     return strictness;
+  }
+
+  /**
+   * Sets the separator to use between multiple top-level values. When writing multiple top-level
+   * values the separator is written between the values, this can for example be useful for formats
+   * such as <a href="https://jsonlines.org/">JSON Lines</a>.<br>
+   * Using {@code null} disables support for multiple top-level values (the default).
+   *
+   * <p>This setting overwrites and is overwritten by whether {@link #setStrictness(Strictness)}
+   * enabled support for multiple top-level values.
+   *
+   * @param separator separator between top-level values, or {@code null} to disable.
+   * @see #getTopLevelSeparator()
+   * @since $next-version$
+   */
+  public final void setTopLevelSeparator(String separator) {
+    this.topLevelSeparator = separator;
+  }
+
+  /**
+   * Returns the top-level separator, or {@code null} if disabled.
+   *
+   * @see #setTopLevelSeparator(String)
+   * @since $next-version$
+   */
+  public final String getTopLevelSeparator() {
+    return topLevelSeparator;
   }
 
   /**
@@ -807,10 +845,14 @@ public class JsonWriter implements Closeable, Flushable {
   private void beforeValue() throws IOException {
     switch (peek()) {
       case NONEMPTY_DOCUMENT:
-        if (strictness != Strictness.LENIENT) {
-          throw new IllegalStateException("JSON must have only one top-level value.");
+        if (topLevelSeparator == null) {
+          throw new IllegalStateException(
+              "Multiple top-level values support has not been enabled, use"
+                  + " `JsonWriter.setTopLevelSeparator(String)`");
         }
-        // fall-through
+        out.append(topLevelSeparator);
+        break;
+
       case EMPTY_DOCUMENT: // first in document
         replaceTop(NONEMPTY_DOCUMENT);
         break;

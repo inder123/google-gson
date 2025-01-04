@@ -272,6 +272,8 @@ public final class JsonTreeWriterTest {
             "isLenient()",
             "setStrictness(com.google.gson.Strictness)",
             "getStrictness()",
+            "setTopLevelSeparator(java.lang.String)",
+            "getTopLevelSeparator()",
             "setIndent(java.lang.String)",
             "setHtmlSafe(boolean)",
             "isHtmlSafe()",

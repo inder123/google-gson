@@ -70,8 +70,9 @@ import java.util.Objects;
  * The behavior of this reader can be customized with the following methods:
  *
  * <ul>
- *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
+ *   <li>{@link #setMultiTopLevelValuesAllowed(boolean)}, the default is {@code false}
  *   <li>{@link #setNestingLimit(int)}, the default is {@value #DEFAULT_NESTING_LIMIT}
+ *   <li>{@link #setStrictness(Strictness)}, the default is {@link Strictness#LEGACY_STRICT}
  * </ul>
  *
  * The default configuration of {@code JsonReader} instances used internally by the {@link Gson}
@@ -257,6 +258,8 @@ public class JsonReader implements Closeable {
   static final int DEFAULT_NESTING_LIMIT = 255;
   private int nestingLimit = DEFAULT_NESTING_LIMIT;
 
+  private boolean multiTopLevelValuesEnabled = false;
+
   static final int BUFFER_SIZE = 1024;
 
   /**
@@ -380,7 +383,8 @@ public class JsonReader implements Closeable {
    *         <li>Streams that start with the <a href="#nonexecuteprefix">non-execute prefix</a>,
    *             {@code ")]}'\n"}
    *         <li>Streams that include multiple top-level values. With legacy strict or strict
-   *             parsing, each stream must contain exactly one top-level value.
+   *             parsing, each stream must contain exactly one top-level value. Can be enabled
+   *             independently using {@link #setMultiTopLevelValuesAllowed(boolean)}.
    *         <li>Numbers may be {@link Double#isNaN() NaNs} or {@link Double#isInfinite()
    *             infinities} represented by {@code NaN} and {@code (-)Infinity} respectively.
    *         <li>End of line comments starting with {@code //} or {@code #} and ending with a
@@ -402,8 +406,8 @@ public class JsonReader implements Closeable {
    * @since 2.11.0
    */
   public final void setStrictness(Strictness strictness) {
-    Objects.requireNonNull(strictness);
-    this.strictness = strictness;
+    this.strictness = Objects.requireNonNull(strictness);
+    setMultiTopLevelValuesAllowed(strictness == Strictness.LENIENT);
   }
 
   /**
@@ -414,6 +418,31 @@ public class JsonReader implements Closeable {
    */
   public final Strictness getStrictness() {
     return strictness;
+  }
+
+  /**
+   * Sets whether multiple top-level values are allowed. Only whitespace is supported as separator
+   * between top-level values. Values may also be concatenated without any whitespace in between,
+   * but for some values this causes ambiguities, for example for JSON numbers as top-level values.
+   *
+   * <p>This setting overwrites and is overwritten by whether {@link #setStrictness(Strictness)}
+   * enabled support for multiple top-level values.
+   *
+   * @see #isMultiTopLevelValuesAllowed()
+   * @since $next-version$
+   */
+  public final void setMultiTopLevelValuesAllowed(boolean enabled) {
+    this.multiTopLevelValuesEnabled = enabled;
+  }
+
+  /**
+   * Returns whether multiple top-level values are allowed.
+   *
+   * @see #setMultiTopLevelValuesAllowed(boolean)
+   * @since $next-version$
+   */
+  public final boolean isMultiTopLevelValuesAllowed() {
+    return multiTopLevelValuesEnabled;
   }
 
   /**
@@ -661,10 +690,13 @@ public class JsonReader implements Closeable {
       int c = nextNonWhitespace(false);
       if (c == -1) {
         return peeked = PEEKED_EOF;
-      } else {
-        checkLenient();
-        pos--;
+      } else if (!multiTopLevelValuesEnabled) {
+        throw new MalformedJsonException(
+            "Multiple top-level values support has not been enabled, use"
+                + " `JsonReader.setMultiTopLevelValuesAllowed(true)`,"
+                + locationString());
       }
+      pos--;
     } else if (peekStack == JsonScope.CLOSED) {
       throw new IllegalStateException("JsonReader is closed");
     }

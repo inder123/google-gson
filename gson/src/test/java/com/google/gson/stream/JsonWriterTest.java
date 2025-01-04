@@ -181,7 +181,11 @@ public final class JsonWriterTest {
 
     IllegalStateException expected =
         assertThrows(IllegalStateException.class, jsonWriter::beginArray);
-    assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo(
+            "Multiple top-level values support has not been enabled, use"
+                + " `JsonWriter.setTopLevelSeparator(String)`");
   }
 
   @Test
@@ -193,7 +197,11 @@ public final class JsonWriterTest {
 
     IllegalStateException expected =
         assertThrows(IllegalStateException.class, jsonWriter::beginArray);
-    assertThat(expected).hasMessageThat().isEqualTo("JSON must have only one top-level value.");
+    assertThat(expected)
+        .hasMessageThat()
+        .isEqualTo(
+            "Multiple top-level values support has not been enabled, use"
+                + " `JsonWriter.setTopLevelSeparator(String)`");
   }
 
   @Test
@@ -207,6 +215,74 @@ public final class JsonWriterTest {
     writer.endArray();
     writer.close();
     assertThat(stringWriter.toString()).isEqualTo("[][]");
+  }
+
+  @Test
+  public void testMultipleTopLevelValuesStrictness() {
+    JsonWriter writer = new JsonWriter(new StringWriter());
+    assertThat(writer.getTopLevelSeparator()).isNull();
+
+    writer.setStrictness(Strictness.STRICT);
+    assertThat(writer.getTopLevelSeparator()).isNull();
+
+    writer.setStrictness(Strictness.LEGACY_STRICT);
+    assertThat(writer.getTopLevelSeparator()).isNull();
+
+    writer.setStrictness(Strictness.LENIENT);
+    assertThat(writer.getTopLevelSeparator()).isEqualTo("");
+
+    writer.setStrictness(Strictness.STRICT);
+    assertThat(writer.getTopLevelSeparator()).isNull();
+    // Verify that it can be enabled independently of Strictness
+    writer.setTopLevelSeparator("\n");
+    assertThat(writer.getStrictness()).isEqualTo(Strictness.STRICT);
+    assertThat(writer.getTopLevelSeparator()).isEqualTo("\n");
+  }
+
+  /**
+   * Tests multiple top-level values, enabled with {@link JsonWriter#setTopLevelSeparator(String)}.
+   */
+  @Test
+  public void testMultipleTopLevelValuesEnabled() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    writer.setStrictness(Strictness.STRICT);
+    writer.setTopLevelSeparator("");
+
+    writer.beginArray();
+    writer.endArray();
+    writer.beginObject();
+    writer.endObject();
+    writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("[]{}");
+
+    stringWriter = new StringWriter();
+    writer = new JsonWriter(stringWriter);
+    writer.setStrictness(Strictness.STRICT);
+    writer.setTopLevelSeparator(" \n ");
+
+    writer.value(1);
+    writer.value(2);
+    writer.close();
+    assertThat(stringWriter.toString()).isEqualTo("1 \n 2");
+  }
+
+  @Test
+  public void testMultipleTopLevelValuesDisabled() throws IOException {
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter writer = new JsonWriter(stringWriter);
+    // Normally lenient mode allows multiple top-level values
+    writer.setStrictness(Strictness.LENIENT);
+    writer.setTopLevelSeparator(null);
+
+    writer.value(1);
+
+    var e = assertThrows(IllegalStateException.class, () -> writer.value(2));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Multiple top-level values support has not been enabled, use"
+                + " `JsonWriter.setTopLevelSeparator(String)`");
   }
 
   @Test
