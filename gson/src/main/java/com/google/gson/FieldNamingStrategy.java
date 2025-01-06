@@ -16,7 +16,10 @@
 
 package com.google.gson;
 
+import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A mechanism for providing custom field naming in Gson. This allows the client code to translate
@@ -37,4 +40,16 @@ public interface FieldNamingStrategy {
    * @since 1.3
    */
   public String translateName(Field f);
+
+  /**
+   * Translates the field name into its JSON field alternative names representation. Used for
+   * deserialization only. This is similar to {@link SerializedName#alternate()}.
+   *
+   * @param f the field object that we are translating
+   * @return the list of possible translated field names.
+   * @since $next-version$
+   */
+  default List<String> translateToAlternateNames(Field f) {
+    return Collections.emptyList();
+  }
 }

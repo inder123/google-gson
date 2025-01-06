@@ -26,6 +26,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.common.TestTypes.ClassWithSerializedNameFields;
 import com.google.gson.common.TestTypes.StringWrapper;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
@@ -235,6 +236,78 @@ public class NamingPolicyTest {
   @Test
   public void testAtSignInSerializedName() {
     assertThat(new Gson().toJson(new AtName())).isEqualTo("{\"@foo\":\"bar\"}");
+  }
+
+  @Test
+  public void testGsonWithNameDeserialiation() {
+    Gson gson =
+        builder
+            .setFieldNamingStrategy(
+                new FieldNamingStrategy() {
+
+                  @Override
+                  public String translateName(Field f) {
+                    return "SomeConstantStringInstanceField";
+                  }
+
+                  @Override
+                  public List<String> translateToAlternateNames(Field f) {
+                    return List.of("alternate-name");
+                  }
+                })
+            .create();
+    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
+  }
+
+  @Test
+  public void testGsonWithAlternateNamesDeserialiation() {
+    Gson gson =
+        builder
+            .setFieldNamingStrategy(
+                new FieldNamingStrategy() {
+
+                  @Override
+                  public String translateName(Field f) {
+                    return "primary-name";
+                  }
+
+                  @Override
+                  public List<String> translateToAlternateNames(Field f) {
+                    return List.of("SomeConstantStringInstanceField");
+                  }
+                })
+            .create();
+    String target = "{\"SomeConstantStringInstanceField\":\"someValue\"}";
+    StringWrapper deserializedObject = gson.fromJson(target, StringWrapper.class);
+    assertThat(deserializedObject.someConstantStringInstanceField).isEqualTo("someValue");
+  }
+
+  @Test
+  public void testGsonWithAlternateNamesSerialization() {
+    Gson gson =
+        builder
+            .setFieldNamingStrategy(
+                new FieldNamingStrategy() {
+
+                  @Override
+                  public String translateName(Field f) {
+                    return "some-constant-string-instance-field";
+                  }
+
+                  @Override
+                  public List<String> translateToAlternateNames(Field f) {
+                    return List.of("SomeConstantStringInstanceField");
+                  }
+                })
+            .create();
+    StringWrapper target = new StringWrapper("blah");
+    assertThat(gson.toJson(target))
+        .isEqualTo(
+            "{\"some-constant-string-instance-field\":\""
+                + target.someConstantStringInstanceField
+                + "\"}");
   }
 
   static final class AtName {
