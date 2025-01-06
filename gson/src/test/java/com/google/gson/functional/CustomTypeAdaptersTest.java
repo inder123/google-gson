@@ -128,7 +128,8 @@ public class CustomTypeAdaptersTest {
                 (JsonSerializer<BagOfPrimitives>) (src, typeOfSrc, context) -> new JsonPrimitive(6))
             .create();
     ClassWithCustomTypeConverter target = new ClassWithCustomTypeConverter();
-    assertThat(gson.toJson(target)).isEqualTo("{\"bag\":6,\"value\":10}");
+    String targetStr = gson.toJson(target);
+    assertThat(targetStr.equals("{\"bag\":6,\"value\":10}") || targetStr.equals("{\"value\":10,\"bag\":6}")).isTrue();
   }
 
   @Test
