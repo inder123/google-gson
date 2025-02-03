@@ -134,6 +134,8 @@ public final class DefaultDateTypeAdapter<T extends Date> extends TypeAdapter<T>
     if (JavaVersion.isJava9OrLater()) {
       dateFormats.add(PreJava9DateFormatProvider.getUsDateTimeFormat(dateStyle, timeStyle));
     }
+    // Include fall-back for "timeless" Date (could be from a java.sql.Date, for example)
+    dateFormats.add(DateFormat.getDateInstance(dateStyle, Locale.US));
   }
 
   @Override

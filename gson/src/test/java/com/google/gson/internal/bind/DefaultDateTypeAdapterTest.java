@@ -119,6 +119,7 @@ public class DefaultDateTypeAdapterTest {
     Locale.setDefault(Locale.US);
     try {
       assertParsed("Jan 1, 1970 0:00:00 AM", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
+      assertParsed("Jan 1, 1970", DefaultDateTypeAdapter.DEFAULT_STYLE_FACTORY);
       assertParsed(
           "1/1/70 0:00 AM", DateType.DATE.createAdapterFactory(DateFormat.SHORT, DateFormat.SHORT));
       assertParsed(
