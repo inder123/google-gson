@@ -352,6 +352,10 @@ public final class GraphAdapterBuilder {
       if (value == null) {
         throw new IllegalStateException("non-null value deserialized to null: " + element);
       }
+      if (graph.nextCreate != null) {
+        graph.nextCreate.value = value;
+        graph.nextCreate = null;
+      }
     }
   }
 }
