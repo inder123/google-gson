@@ -29,11 +29,15 @@ import static com.google.gson.stream.JsonToken.STRING;
 import static org.junit.Assert.assertThrows;
 
 import com.google.gson.Strictness;
+import com.google.gson.internal.bind.TypeAdapters;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.stream.Stream;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -2168,6 +2172,27 @@ public final class JsonReaderTest {
         throw new AssertionError("Unsupported expectation value: " + expectation);
       }
     }
+  }
+
+  @Test
+  public void testJsonReaderWithStrictnessSetToLenientAndNullValue() throws IOException {
+    Iterator<String> iterator = Stream.of(null, "value1", "value2").iterator();
+    StringWriter str = new StringWriter();
+
+    try (JsonWriter writer = new JsonWriter(str)) {
+      writer.setStrictness(Strictness.LENIENT);
+      while (iterator.hasNext()) {
+        TypeAdapters.STRING.write(writer, iterator.next());
+      }
+      writer.flush();
+    }
+
+    JsonReader reader = new JsonReader(new StringReader(str.toString()));
+    reader.setStrictness(Strictness.LENIENT);
+
+    assertThat(TypeAdapters.STRING.read(reader)).isEqualTo("null");
+    assertThat(TypeAdapters.STRING.read(reader)).isEqualTo("value1");
+    assertThat(TypeAdapters.STRING.read(reader)).isEqualTo("value2");
   }
 
   /** Returns a reader that returns one character at a time. */
